@@ -1,7 +1,8 @@
 #include <sphere.hpp>
 #include <cmath>
 
-Sphere::Sphere(glm::vec3 const& center, float const radius) :
+Sphere::Sphere(glm::vec3 const& center, float const radius, std::string name, Color color) :
+    Shape(name, color),
     center_{center},
     radius_{radius}
 {}

@@ -6,16 +6,16 @@
 class Shape
 {
 public:
-    Shape(std::string const& name, Color const& color) :
-        name_ {name},
-        color_ {color}
-        {};
+    Shape(std::string const& name, Color const& color);
     virtual float area() const = 0;
     virtual float volume() const = 0;
+    virtual std::ostream& print(std::ostream& os) const;
 private:
     std::string name_ = "NoName";
     Color color_ = {0.0f,0.0f,0.0f};
 
 };
+
+std::ostream& operator<<(std::ostream& os, Shape const& s);
 
 #endif

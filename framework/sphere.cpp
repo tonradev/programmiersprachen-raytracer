@@ -14,3 +14,10 @@ float Sphere::area() const {
 float Sphere::volume() const {
     return (4.0f/3.0f)*M_PI*std::pow(radius_,3);
 }
+
+std::ostream& Sphere::print(std::ostream& os) const
+{
+    Shape::print(os);
+    os << "I'm a sphere printed by the sphere print method!";
+    return os;
+}

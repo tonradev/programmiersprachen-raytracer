@@ -20,3 +20,11 @@ float Box::volume() const {
     float h = max_[1]-min_[1];
     return b*h*l;
 }
+
+
+std::ostream& Box::print(std::ostream& os) const
+{
+    Shape::print(os);
+    os << "I'm a box printed by the box print method!";
+    return os;
+}

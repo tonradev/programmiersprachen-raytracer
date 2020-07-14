@@ -57,6 +57,19 @@ TEST_CASE("Sphere volume", "[Sphere_volume]")
   REQUIRE(s2.volume() == Approx(57.905).epsilon(0.01));
 }
 
+TEST_CASE("Print function", "[Print]")
+{
+  Box b1 = Box{{4.7f, 1.0f, 0.0f}, {14.53f, 9.5f, -5.55f}, "Box1", {1.0f,1.0f,0.4f}};
+  std::cout << b1 << std::endl;
+  Box b2 = Box{{-7.3f, 6.2f, 10.3f}, {2.4f, 14.1f, 0.3f}, "Box2", {0.1f,0.6f,0.3f}};
+  std::cout << b2 << std::endl;
+
+  Sphere s1 = Sphere{{-10.0f, 23.4f, 0.5f}, 12.5f, "Sphere1", {0.9f,0.73f,0.2f}};
+  std::cout << s1 << std::endl;
+  Sphere s2 = Sphere{{34.5f, 27.0f, 90.5f}, 3.9f, "Sphere2", {0.2f,0.9f,0.32f}};
+  std::cout << s2 << std::endl;
+}
+
 
 int main(int argc, char *argv[])
 {

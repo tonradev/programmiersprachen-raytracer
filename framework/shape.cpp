@@ -9,7 +9,7 @@ Shape::Shape(std::string const& name, Color const& color) :
 
 std::ostream& Shape::print(std::ostream& os) const
 {
-    os << "Name: " << name_ << "Color (R, G, B): " << color_.r << ", " << color_.g << ", " << color_.b << std::endl;
+    os << "Name: " << name_ << "\n" << "Color (R, G, B): " << color_.r << ", " << color_.g << ", " << color_.b << std::endl;
     return os;
 }
 

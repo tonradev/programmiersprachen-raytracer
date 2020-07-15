@@ -6,7 +6,13 @@ Sphere::Sphere(glm::vec3 const& center, float const radius, std::string name, Co
     Shape(name, color),
     center_{center},
     radius_{radius}
-{}
+{
+    std::cout << "I'm the Sphere class constructor." << std::endl;
+}
+
+Sphere::~Sphere() {
+    std::cout << "I'm the Sphere class destructor." << std::endl;
+}
 
 float Sphere::area() const {
     return 4.0f*M_PI*std::pow(radius_,2);
@@ -19,7 +25,7 @@ float Sphere::volume() const {
 std::ostream& Sphere::print(std::ostream& os) const
 {
     Shape::print(os);
-    os << "I'm a sphere printed by the sphere print method!";
+    os << "I'm a sphere printed by the sphere print method!" << std::endl;
     return os;
 }
 

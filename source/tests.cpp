@@ -140,6 +140,23 @@ TEST_CASE("intersect_ray_sphere", "[intersect]")
   REQUIRE(distance == Approx(4.0f));
 }
 
+TEST_CASE("Destructors", "[Destructors]")
+{
+  std::cout << "CONSTRUCTOR/DESTRUCTOR TEST (EX. 5.8)" << std::endl;
+  Color red{255,0,0};
+  glm::vec3 position{0.0f,0.0f,0.0f};
+  Sphere* s1 = new Sphere{position, 1.2f, "sphere0", red};
+  Shape* s2 = new Sphere{position, 1.2f, "sphere1", red};
+  
+  s1->print(std::cout);
+  s2->print(std::cout);
+
+  std::cout << "Delete s1:" << std::endl;
+  delete s1;
+  std::cout << "Delete s2:" << std::endl;
+  delete s2;
+}
+
 
 int main(int argc, char *argv[])
 {

@@ -5,7 +5,13 @@ Box::Box(glm::vec3 const& min, glm::vec3 const& max, std::string name, Color col
     Shape(name, color),
     min_{min},
     max_{max}
-{}
+{
+    std::cout << "I'm the Box class constructor." << std::endl;
+}
+
+Box::~Box(){
+    std::cout << "I'm the Box class destructor." << std::endl;
+}
 
 float Box::area() const {
     float b = max_[0]-min_[0];
@@ -25,6 +31,6 @@ float Box::volume() const {
 std::ostream& Box::print(std::ostream& os) const
 {
     Shape::print(os);
-    os << "I'm a box printed by the box print method!";
+    os << "I'm a box printed by the box print method!" << std::endl;
     return os;
 }

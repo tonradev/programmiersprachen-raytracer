@@ -10,7 +10,7 @@ public:
     virtual float area() const = 0;
     virtual float volume() const = 0;
     virtual std::ostream& print(std::ostream& os) const;
-private:
+protected:
     std::string name_ = "NoName";
     Color color_ = {0.0f,0.0f,0.0f};
 

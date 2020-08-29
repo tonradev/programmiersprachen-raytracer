@@ -13,6 +13,8 @@
 #include "color.hpp"
 #include "pixel.hpp"
 #include "ppmwriter.hpp"
+#include "ray.hpp"
+#include "camera.hpp"
 #include <string>
 #include <glm/glm.hpp>
 
@@ -23,6 +25,8 @@ public:
 
   void render();
   void write(Pixel const& p);
+  Ray compute_ray(Camera const& cam, Pixel const& p);
+  Color trace(Ray r);
 
   inline std::vector<Color> const& color_buffer() const
   {

@@ -21,6 +21,9 @@ add_executable(tests
   ../framework/box.cpp
   ../framework/sphere.cpp
   tests.cpp)
+
+add_executable(sdfparser ../framework/sdfparser.cpp)
+
 target_link_libraries(tests
   ${GLFW_LIBRARIES}
   )

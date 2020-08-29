@@ -97,6 +97,7 @@ TEST_CASE("intersect_ray_sphere", "[intersect]")
   Ray ra4 = {{25.0f,10.0f,20.0f},{0.5f,0.5f,0.5f}};
   Ray ra5 = {{50.0f,10.0f,30.0f},{-1.0f,0.0f,0.0f}};
 
+  /*
   HitPoint hp1 = sp1.intersect(ra1);
 
   HitPoint hp2 = sp1.intersect(ra2);
@@ -138,6 +139,24 @@ TEST_CASE("intersect_ray_sphere", "[intersect]")
   auto result = glm::intersectRaySphere(ray_origin, ray_direction_normalized, sphere_center, sphere_radius * sphere_radius, distance);
   
   REQUIRE(distance == Approx(4.0f));
+  */
+
+}
+
+TEST_CASE("intersect_ray_box", "[intersect]")
+{
+  // Ray
+  Ray ra1 = {{25.0f,5.0f,10.0f},{0.0f,0.0f,-1.0f}};
+  Ray ra2 = {{55.0f,5.0f,10.0f},{0.0f,0.0f,-1.0f}};
+  Ray ra3 = {{25.0f,14.2f,10.0f},{0.0f,0.0f,-1.0f}};
+  Ray ra4 = {{25.0f,5.0f,10.0f},{0.0f,1.0f,0.0f}};
+
+  Box b9 = Box{{-50.0f,0.0f,0.0f},{50.0f,10.0f,-20.0f},"Box9"};
+
+  REQUIRE(b9.intersect(ra1) == true);
+  REQUIRE(b9.intersect(ra2) == false);
+  REQUIRE(b9.intersect(ra3) == false);
+  REQUIRE(b9.intersect(ra4) == false);
 }
 
 TEST_CASE("Destructors", "[Destructors]")

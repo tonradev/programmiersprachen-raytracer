@@ -6,17 +6,15 @@
 class Camera
 {
     public:
-        Camera(glm::vec3 const& cam_pos, glm::vec3 const& plane_pos, int plane_width, int plane_height) :
-        cam_pos_{cam_pos},
-        plane_pos_{plane_pos},
-        plane_width_{plane_width},
-        plane_height_{plane_height}
+        Camera(){};
+        Camera(std::string name, float angle_x) :
+        name_{name},
+        fov_x_{angle_x}
         {};
-        glm::vec3 cam_pos_;
-        glm::vec3 cam_direction_;
-        glm::vec3 plane_pos_;
-        int plane_width_;
-        int plane_height_;
+        glm::vec3 cam_pos_ = {0,0,0};
+        glm::vec3 cam_direction_ = {0,0,-1.0f};
+        std::string name_ = "NoName";
+        float fov_x_ = 45.0f;
 };
 
 #endif // CAMERA_HPP

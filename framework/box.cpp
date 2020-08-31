@@ -2,8 +2,8 @@
 #include <glm/gtx/intersect.hpp>
 #include <iostream>
 
-Box::Box(glm::vec3 const& min, glm::vec3 const& max, std::string name, Color color) :
-    Shape(name, color),
+Box::Box(glm::vec3 const& min, glm::vec3 const& max, std::string name, std::string mat_name) :
+    Shape(name, mat_name),
     min_{min},
     max_{max}
 {

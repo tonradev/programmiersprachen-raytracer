@@ -2,8 +2,8 @@
 #include <cmath>
 #include <glm/gtx/intersect.hpp>
 
-Sphere::Sphere(glm::vec3 const& center, float const radius, std::string name, Color color) :
-    Shape(name, color),
+Sphere::Sphere(glm::vec3 const& center, float const radius, std::string name, std::string mat_name) :
+    Shape(name, mat_name),
     center_{center},
     radius_{radius}
 {

@@ -1,5 +1,6 @@
 #include <renderer.hpp>
 #include <window.hpp>
+#include <sdfparser.hpp>
 
 #include <GLFW/glfw3.h>
 #include <thread>

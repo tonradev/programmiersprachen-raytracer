@@ -11,6 +11,7 @@
 #include "box.hpp"
 #include "sphere.hpp"
 #include "shape.hpp"
+#include "sdfparser.hpp"
 #include <vector>
 #include <memory>
 
@@ -22,12 +23,26 @@ Renderer::Renderer(unsigned w, unsigned h, std::string const& file)
   , ppm_(width_, height_)
 {}
 
-Camera c1 = Camera{{0.0f,0.0f,0.0f},{0.0f,0.0f,-1.0f},800,600};
-Sphere sp2 = {{0.0f,0.0f,-40.0f},5.5f,"sp2",{0.7f,0.9f,1.0f}};
+/*
+Material m1 = {"red", {1.0,0,0},{1.0,0,0},{1.0,0,0},1};
+Camera c1 = Camera{{0.0f,0.0f,0.0f},45.0};
+Sphere sp2 = {{0.0f,0.0f,-40.0f},5.5f,"sp2","red"};
 // Box b9 = Box{{0.0f,0.0f,0.0f},{3.0f,4.2f,-4.0f},"Box9"};
-Box b9 = Box{{0.0f,0.0f,-40.0f},{50.0f,10.0f,-50.0f},"Box9"};
+Box b9 = Box{{0.0f,0.0f,-40.0f},{50.0f,10.0f,-50.0f},"Box9","red"};
+*/
 
-std::vector<Shape*> objects;
+
+SdfParser parser = {"scene1.sdf"};
+
+RenderProps render_props = parser.getRenderProperties();
+
+std::vector<Shape*> objects = parser.getShapes();
+
+std::map<std::string,Material> materials = parser.getMaterials();
+
+std::vector<Light> lights = parser.getLights();
+
+Camera cam = parser.getCamera();
 
 
 void Renderer::render()
@@ -36,7 +51,7 @@ void Renderer::render()
   // objects.push_back(sp2ptr);
   // objects.push_back(sp2ptr);
   // objects.push_back(new Box{{0.0f,0.0f,-10.0f},{50.0f,10.0f,-50.0f},"Box9"});
-  objects.push_back(new Sphere{{0.0f,0.0f,-40.0f},5.5f,"sp2",{0.7f,0.9f,1.0f}});
+  objects.push_back(new Sphere{{0.0f,0.0f,-40.0f},5.5f,"sp2","red"});
 
   std::size_t const checker_pattern_size = 20;
 
@@ -44,7 +59,7 @@ void Renderer::render()
   for (unsigned y = 0; y < height_; ++y) {
     for (unsigned x = 0; x < width_; ++x) {
       Pixel p(x,y);
-      p.color = trace(compute_ray(c1,p));
+      p.color = trace(compute_ray(cam,p));
       /*
       if ( ((x/checker_pattern_size)%2) != ((y/checker_pattern_size)%2)) {
         p.color = Color{0.0f, 1.0f, float(x)/height_};
@@ -79,7 +94,7 @@ Ray Renderer::compute_ray(Camera const& cam, Pixel const& p)
   // float pix_width = 1.0f/cam.plane_width_;
   float plane_width = tan(60*M_PI/180);
   float pix_width = plane_width/800;
-  float plane_height = cam.plane_height_*pix_width;
+  float plane_height = render_props.y_res*pix_width;
 
   glm::vec3 pixel_on_plane = {((-plane_width/2.0f)+(pix_width*p.x)),((plane_height/2.0f)-(pix_width*p.y)),-1.0f};
 

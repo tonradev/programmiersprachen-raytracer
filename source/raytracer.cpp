@@ -7,15 +7,19 @@
 #include <utility>
 #include <cmath>
 #include <box.hpp>
+#include <sdfparser.hpp>
 
 //now single threaded again
 int main(int argc, char* argv[])
 {
-  unsigned const image_width = 800;
-  unsigned const image_height = 600;
+
+  SdfParser parser = {"scene1.sdf"};
+
+  RenderProps render_props = parser.getRenderProperties();
+
+  unsigned const image_width = render_props.x_res;
+  unsigned const image_height = render_props.y_res;
   std::string const filename = "./checkerboard.ppm";
-
-
 
   Renderer renderer{image_width, image_height, filename};
 

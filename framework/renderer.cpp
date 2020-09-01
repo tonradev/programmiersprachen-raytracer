@@ -92,8 +92,8 @@ void Renderer::write(Pixel const& p)
 Ray Renderer::compute_ray(Camera const& cam, Pixel const& p)
 {
   // float pix_width = 1.0f/cam.plane_width_;
-  float plane_width = tan(60*M_PI/180);
-  float pix_width = plane_width/800;
+  float plane_width = tan(cam.fov_x_*M_PI/180);
+  float pix_width = plane_width/render_props.x_res;
   float plane_height = render_props.y_res*pix_width;
 
   glm::vec3 pixel_on_plane = {((-plane_width/2.0f)+(pix_width*p.x)),((plane_height/2.0f)-(pix_width*p.y)),-1.0f};

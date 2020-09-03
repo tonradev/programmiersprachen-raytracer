@@ -70,14 +70,22 @@ SdfParser::SdfParser(std::string sdf_file)
            glm::vec3 max_point;
            std::string mat_name;
 
-           in_sstream >> min_point_x >> min_point_y >> min_point_z;
-
+           in_sstream >> min_point_x;
+           in_sstream >> min_point_y;
+           in_sstream >> min_point_z;
            in_sstream >> max_point_x >> max_point_y >> max_point_z;
+           in_sstream >> mat_name;
+           /*std::cout << "name: " << name << std::endl;
+           std::cout << "mat name: " << mat_name << std::endl;
+           std::cout << "min point: " << min_point_x << " " << min_point_y << " " << min_point_z << std::endl;
+           std::cout << "max point: " << max_point_x << " " << max_point_y << " " << max_point_z << std::endl;
+           throw std::exception();*/
+           
 
            min_point = {min_point_x,min_point_y,min_point_z};
            max_point = {max_point_x,max_point_y,max_point_z};
 
-           in_sstream >> mat_name;
+           
 
            shapes_.push_back(new Box{min_point,max_point,name,mat_name});
 

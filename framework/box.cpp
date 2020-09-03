@@ -1,6 +1,7 @@
 #include <box.hpp>
 #include <glm/gtx/intersect.hpp>
 #include <iostream>
+#include <cmath>
 
 Box::Box(glm::vec3 const& min, glm::vec3 const& max, std::string name, std::string mat_name) :
     Shape(name, mat_name),
@@ -36,71 +37,109 @@ std::ostream& Box::print(std::ostream& os) const
     return os;
 }
 
-bool Box::intersect(Ray const& r) const
+HitPoint Box::intersect(Ray const& r) const
 {
-    glm::vec3::value_type dist_front = 0.0;
-    glm::vec3::value_type dist_back = 0.0;
-    glm::vec3::value_type dist_top = 0.0;
-    glm::vec3::value_type dist_bottom = 0.0;
-    glm::vec3::value_type dist_left = 0.0;
-    glm::vec3::value_type dist_right = 0.0;
     glm::vec3::value_type dist = 0.0f;
     glm::vec3::value_type min_dist = std::numeric_limits<float>::infinity();
-    glm::vec3 ray_direction_normalized = glm::normalize(r.direction);
-    bool intersect_front = glm::intersectRayPlane(r.origin,ray_direction_normalized,
-                                                  min_,{0.0f,0.0f,1.0f},dist);
-    if (dist < min_dist)
+    glm::vec3 hitpt = glm::vec3(1.0f, 1.0f, 1.0f);
+    // glm::vec3 ray_direction_normalized = glm::normalize(r.direction_);
+    bool intersect_front = glm::intersectRayPlane(r.origin_,r.direction_,
+                                                  glm::vec3{min_.x,min_.y,min_.z},glm::normalize(glm::vec3{0.0f,0.0f,1.0f}),dist);
+    // std::cout << "dist after intersect front: " << dist << std::endl;  
+    //std::cout << "min: " << min_.x << " " << min_.y << " " << min_.z << std::endl; 
+    //std::cout << "Ray origin: " << r.origin_.x << " " << r.origin_.y << " " << r.origin_.z << std::endl;                           
+    //std::cout << "Ray direction: " << r.direction_.x << " " << r.direction_.y << " " << r.direction_.z << std::endl; 
+    if (intersect_front && abs(dist) < min_dist)
     {
-        min_dist = dist;
+        glm::vec3 tmp_hitpt = {(r.origin_+dist*r.direction_)};
+        if( min_.x <= tmp_hitpt.x 
+            && tmp_hitpt.x <= max_.x
+            && min_.y <= tmp_hitpt.y
+            && tmp_hitpt.y <= max_.y)
+        {
+            // std::cout << "Front dist smaller: " << dist << std::endl;
+            min_dist = dist;
+            hitpt = tmp_hitpt;
+        }
     }
-    bool intersect_back = glm::intersectRayPlane(r.origin,ray_direction_normalized,
-                                                {min_.x,min_.y,max_.z},{0.0f,0.0f,1.0f},dist);
-    if (dist < min_dist)
+    bool intersect_back = glm::intersectRayPlane(r.origin_,r.direction_,
+                                                glm::vec3{min_.x,min_.y,max_.z},glm::normalize(glm::vec3{0.0f,0.0f,-1.0f}),dist);
+    if (intersect_back && abs(dist) < min_dist)
     {
-        min_dist = dist;
+        glm::vec3 tmp_hitpt = {(r.origin_+dist*r.direction_)};
+        if( min_.x <= tmp_hitpt.x 
+            && tmp_hitpt.x <= max_.x
+            && min_.y <= tmp_hitpt.y
+            && tmp_hitpt.y <= max_.y)
+        {
+            // std::cout << "Back dist smaller: " << dist << std::endl;
+            min_dist = dist;
+            hitpt = tmp_hitpt;
+        }
     }
-    bool intersect_top = glm::intersectRayPlane(r.origin,ray_direction_normalized,
-                                                {min_.x,max_.y,min_.z},{0.0f,1.0f,0.0f},dist);
-    if (dist < min_dist)
+    bool intersect_top = glm::intersectRayPlane(r.origin_,r.direction_,
+                                                glm::vec3{min_.x,max_.y,min_.z},glm::normalize(glm::vec3{0.0f,1.0f,0.0f}),dist);
+    if (intersect_top && abs(dist) < min_dist)
     {
-        min_dist = dist;
+        glm::vec3 tmp_hitpt = {(r.origin_+dist*r.direction_)};
+        if( min_.z >= tmp_hitpt.z 
+            && tmp_hitpt.z >= max_.z
+            && min_.x <= tmp_hitpt.x
+            && tmp_hitpt.x <= max_.x)
+        {
+            // std::cout << "Top dist smaller: " << dist << std::endl;
+            min_dist = dist;
+            hitpt = tmp_hitpt;
+        }
     }
-    bool intersect_bottom = glm::intersectRayPlane(r.origin,ray_direction_normalized,
-                                                  min_,{0.0f,1.0f,0.0f},dist);
-    if (dist < min_dist)
+    bool intersect_bottom = glm::intersectRayPlane(r.origin_,r.direction_,
+                                                  min_,glm::normalize(glm::vec3{0.0f,-1.0f,0.0f}),dist);
+    if (intersect_bottom && abs(dist) < min_dist)
     {
-        min_dist = dist;
+        glm::vec3 tmp_hitpt = {(r.origin_+dist*r.direction_)};
+        if( min_.z >= tmp_hitpt.z 
+            && tmp_hitpt.z >= max_.z
+            && min_.x <= tmp_hitpt.x
+            && tmp_hitpt.x <= max_.x)
+        {
+            // std::cout << "Bottom dist smaller: " << dist << std::endl;
+            min_dist = dist;
+            hitpt = tmp_hitpt;
+        }
     }
-    bool intersect_left = glm::intersectRayPlane(r.origin,ray_direction_normalized,
-                                                  min_,{1.0f,0.0f,0.0f},dist);
-    if (dist < min_dist)
+    bool intersect_left = glm::intersectRayPlane(r.origin_,r.direction_,
+                                                  min_,glm::normalize(glm::vec3{-1.0f,0.0f,0.0f}),dist);
+    if (intersect_left && abs(dist) < min_dist)
     {
-        min_dist = dist;
+        glm::vec3 tmp_hitpt = {(r.origin_+dist*r.direction_)};
+        if( min_.z >= tmp_hitpt.z 
+            && tmp_hitpt.z >= max_.z
+            && min_.y <= tmp_hitpt.y
+            && tmp_hitpt.y <= max_.y)
+        {
+            // std::cout << "Left dist smaller: " << dist << std::endl;
+            min_dist = dist;
+            hitpt = tmp_hitpt;
+        }
     }
-    bool intersect_right = glm::intersectRayPlane(r.origin,ray_direction_normalized,
-                                                  {max_.x,min_.y,min_.z},{1.0f,0.0f,0.0f},dist);
-    if (dist < min_dist)
+    bool intersect_right = glm::intersectRayPlane(r.origin_,r.direction_,
+                                                  glm::vec3{max_.x,min_.y,min_.z},glm::normalize(glm::vec3{1.0f,0.0f,0.0f}),dist);
+    if (intersect_right && abs(dist) < min_dist)
     {
-        min_dist = dist;
+        glm::vec3 tmp_hitpt = {(r.origin_+dist*r.direction_)};
+        if( min_.z >= tmp_hitpt.z
+            && tmp_hitpt.z >= max_.z
+            && min_.y <= tmp_hitpt.y
+            && tmp_hitpt.y <= max_.y)
+        {
+            // std::cout << "Right dist smaller: " << dist << std::endl;
+            min_dist = dist;
+            hitpt = tmp_hitpt;
+        }
     }
 
-    if (intersect_front || intersect_back || intersect_top || intersect_bottom || intersect_left || intersect_right) {
-        glm::vec3 hitpt_front = {(r.origin+min_dist*r.direction)};
-        // std::cout << "HITPOINT COORDINATES: X " << hitpt_front.x << " Y " << hitpt_front.y << " Z " << hitpt_front.z << std::endl;
-        if (min_.y <= hitpt_front.y 
-            && hitpt_front.y <= max_.y 
-            && min_.x <= hitpt_front.x 
-            && hitpt_front.x <= max_.x
-            && min_.z >= hitpt_front.z
-            && hitpt_front.z >= max_.z
-            ) {
-            // std::cout << "TRUE" << std::endl;
-            return true;
-        }
-        // std::cout << "HOWDY" << std::endl;
-        return false;
-    }
-    else {
-        return false;
-    }
+    if(min_dist < std::numeric_limits<float>::infinity())
+        return HitPoint{true,min_dist,name_,color_,hitpt,r.direction_};
+    
+    return HitPoint{false};
 }

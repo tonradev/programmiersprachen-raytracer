@@ -7,6 +7,7 @@
 #include <sphere.hpp>
 #include <iostream>
 
+/*
 TEST_CASE("Box area", "[Box_area]")
 {
   glm::vec3 minimum1 = {1.0f, 0.0f, 5.0f};
@@ -141,6 +142,7 @@ TEST_CASE("intersect_ray_sphere", "[intersect]")
   REQUIRE(distance == Approx(4.0f));
   */
 
+/*
 }
 
 TEST_CASE("intersect_ray_box", "[intersect]")
@@ -174,6 +176,57 @@ TEST_CASE("Destructors", "[Destructors]")
   delete s1;
   std::cout << "Delete s2:" << std::endl;
   delete s2;
+}
+*/
+
+TEST_CASE("TEST INTERSECTIONS", "[intersect]")
+{
+  Ray r1 = Ray{{0,0,0},{0,0,-1.0f}};
+  /*
+  Sphere s1 = Sphere{{0,0,-40.0f},10.0f,"Sphere1","red"};
+  std::cout << s1.intersect(r1).intersect << std::endl;
+  std::cout << s1.intersect(r1).intersection_point.x << std::endl;
+    std::cout << s1.intersect(r1).intersection_point.y << std::endl;
+
+  std::cout << s1.intersect(r1).intersection_point.z << std::endl;
+  */
+  Box b1 = Box{{-5.0f,-5.0f,-40.0f},{5.0f,5.0f,-50.0f},"Box1","red"};
+
+  // glm::vec3 hp = b1.intersect(r1).intersection_point;
+
+  Ray r_fromleft = Ray{{-20.0f,0,-45.0f},{1.0f,0,0}};
+
+  Ray r_fromtop = Ray{{0,15.0f,-45.0f},{0,-1.0f,0}};
+
+  Ray r_fromright = Ray{{20.0f,0,-45.0f},{-1.0f,0,0}};
+
+  Ray r_frombottom = Ray{{0,-30.0f,-42.0f},{0,1.0f,0}};
+
+  Ray r_fromback = Ray{{0,0,-62.0f},{0,0,1.0f}};
+
+  glm::vec3 expected_hp_r1 = glm::vec3{0,0,-40.0f};
+  glm::vec3 expected_hp_r_fromleft = glm::vec3{-5.0f,0,-45.0f};
+  glm::vec3 expected_hp_r_fromtop = glm::vec3{0,5.0f,-45.0f};
+  glm::vec3 expected_hp_r_fromright = glm::vec3{5.0f,0,-45.0f};
+  glm::vec3 expected_hp_r_frombottom = glm::vec3{0,-5.0f,-42.0f};
+  glm::vec3 expected_hp_r_fromback = glm::vec3{0,0,-50.0f};
+
+
+  std::cout << "INTERSECT FROM BACK" << std::endl;
+  std::cout << "DISTANCE: " << b1.intersect(r_fromback).distance << std::endl;
+  std::cout << b1.intersect(r_fromback).intersection_point.x << std::endl;
+  std::cout << b1.intersect(r_fromback).intersection_point.y << std::endl;
+  std::cout << b1.intersect(r_fromback).intersection_point.z << std::endl;
+
+
+  REQUIRE(b1.intersect(r1).intersection_point == expected_hp_r1);
+  REQUIRE(b1.intersect(r_fromleft).intersection_point == expected_hp_r_fromleft);
+  REQUIRE(b1.intersect(r_fromtop).intersection_point == expected_hp_r_fromtop);
+  REQUIRE(b1.intersect(r_fromright).intersection_point == expected_hp_r_fromright);
+  REQUIRE(b1.intersect(r_frombottom).intersection_point == expected_hp_r_frombottom);
+  REQUIRE(b1.intersect(r_fromback).intersection_point == expected_hp_r_fromback);
+
+ 
 }
 
 

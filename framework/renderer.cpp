@@ -120,6 +120,15 @@ Color Renderer::trace(Ray r)
       std::cout << hp.intersection_point.x << " " << hp.intersection_point.y << " " << hp.intersection_point.z << std::endl;
       */
 
+      // Ambient properties
+      float l_a = 0.9f;
+      glm::vec3 ka = i->mat_.ka;
+
+      // Define RGB values and calculate ambient part
+      float clr_r = l_a*ka.x;
+      float clr_g = l_a*ka.y;
+      float clr_b = l_a*ka.z;
+
       // Check the lights
       for (auto const &j : lights)
       {
@@ -143,6 +152,9 @@ Color Renderer::trace(Ray r)
         float dist_light_hp = {sqrt(pow(j.pos.x - hp.intersection_point.x, 2) + pow(j.pos.y - hp.intersection_point.y, 2) + pow(j.pos.z - hp.intersection_point.z, 2))};
 
         Ray hp_to_light_inverted = {j.pos, (hp.intersection_point - j.pos)};
+
+        Material mat = i->mat_;
+
         for (auto const &k : objects)
         {
           if (k->intersect(hp_to_light_inverted).intersect)
@@ -155,11 +167,11 @@ Color Renderer::trace(Ray r)
             // std::cout << "Ditance of hitpoints: " << std::endl;
             // std::cout << dist << std::endl;
             // Case: Shadow area
-            /*
-            if (dist > 0.001f){
-              return Color{0, 0, 0.0f};
+            
+            if (dist > 0.01f){
+              return Color{mat.ka.x,mat.ka.y,mat.ka.z};
             }
-            */
+            
             
             
             
@@ -169,9 +181,8 @@ Color Renderer::trace(Ray r)
         }
         // Diffuse part
         float l_p = j.brightness;
-        Material mat = i->mat_;
+        
         glm::vec3 kd = mat.kd;
-        glm::vec3 ka = mat.ka;
         glm::vec3 ks = mat.ks;
         int reflection_coeff = mat.m;
         glm::vec3 normal = i->calcNormal(hp.intersection_point);
@@ -184,10 +195,6 @@ Color Renderer::trace(Ray r)
         glm::vec3 i_diff = glm::vec3{kd.x*angle_diff, kd.y*angle_diff, kd.z*angle_diff};
 
         Color diff_clr = Color{i_diff.x, i_diff.y, i_diff.z};
-
-        // Ambient part
-        float l_a = 0.9f;
-        Color amb_clr = Color{l_a*ka.x, l_a*ka.y, l_a*ka.z};
 
 
         float specular = 0.0;
@@ -208,15 +215,15 @@ Color Renderer::trace(Ray r)
         spec_clr = Color{(ks.x*specular),(ks.y*specular),(ks.z*specular)};
         
         }
-        float clr_r = {l_a*ka.x+l_p*(kd.x*angle_diff+ks.x*specular)};
-        float clr_g = {l_a*ka.y+l_p*(kd.y*angle_diff+ks.y*specular)};
-        float clr_b = {l_a*ka.z+l_p*(kd.z*angle_diff+ks.z*specular)};
-        return Color{clr_r,clr_g,clr_b};
+
+        clr_r += l_p*(kd.x*angle_diff+ks.x*specular);
+        clr_g += l_p*(kd.y*angle_diff+ks.y*specular);
+        clr_b += l_p*(kd.z*angle_diff+ks.z*specular);
 
         // return Color{(diff_clr.r+amb_clr.r+spec_clr.r),(diff_clr.g+amb_clr.g+spec_clr.g),(diff_clr.b+amb_clr.b+spec_clr.b)};
 
       }
-      return Color{0.0f, 0.0f, 1.0f};
+      return Color{clr_r,clr_g,clr_b};
     }
   }
   return Color{.1f,.1f,.1f};

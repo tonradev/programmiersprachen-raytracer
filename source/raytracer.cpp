@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
 
   unsigned const image_width = render_props.x_res;
   unsigned const image_height = render_props.y_res;
-  std::string const filename = "./checkerboard.ppm";
+  std::string const filename = render_props.filename;
 
   Renderer renderer{image_width, image_height, filename};
 

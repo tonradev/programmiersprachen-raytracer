@@ -14,8 +14,10 @@ public:
     float area() const override;
     float volume() const override;
     std::ostream& print(std::ostream& os) const override;
-    HitPoint intersect(Ray const& r) const;
+    HitPoint intersect(Ray const& r);
+    glm::vec3 calcNormal(glm::vec3 const& hitpoint) const override;
 private:
+    glm::vec3 hitpoint_normal = {0,0,0};
     glm::vec3 min_;
     glm::vec3 max_;
 };

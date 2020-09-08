@@ -6,6 +6,7 @@
 #include <box.hpp>
 #include <sphere.hpp>
 #include <iostream>
+#include "light.hpp"
 
 /*
 TEST_CASE("Box area", "[Box_area]")
@@ -226,7 +227,33 @@ TEST_CASE("TEST INTERSECTIONS", "[intersect]")
   REQUIRE(b1.intersect(r_frombottom).intersection_point == expected_hp_r_frombottom);
   REQUIRE(b1.intersect(r_fromback).intersection_point == expected_hp_r_fromback);
 
- 
+  Light l1 = Light{"licht1",glm::vec3{0,-90.0f,-45.0f},Color{.2f,.2f,.2f},100};
+  glm::vec3 hitpt = b1.intersect(r_fromtop).intersection_point;
+  std::cout << b1.calcNormal(b1.calcNormal(hitpt)).x << " " << b1.calcNormal(b1.calcNormal(hitpt)).y << " " << b1.calcNormal(b1.calcNormal(hitpt)).z << std::endl;
+
+  glm::vec3 N = glm::normalize(b1.calcNormal(hitpt));
+  glm::vec3 L = glm::normalize(l1.pos-hitpt);
+
+  std::cout << "L VECTOR: " << L.x << " " << L.y << " " << L.z << std::endl;
+
+  std::cout << "DOT PRODUCT: " << glm::dot(N,L) << std::endl;
+
+  glm::vec3 N2 = glm::vec3{0,1.0f,0};
+
+  glm::vec3 L2 = glm::vec3{0.5f,0.5f,0};
+
+  glm::vec3 R2 = -glm::reflect(L2,N2);
+
+  std::cout << "REFLECT VECTOR TEST" << std::endl;
+  std::cout << R2.x << " " << R2.y << " " << R2.z << std::endl;
+
+  float cos_angle_spec = glm::dot(R2,N2);
+
+  float cos_angle_2 = glm::dot(L2,N2);
+
+  std::cout << cos_angle_spec << std::endl;
+
+  std::cout << cos_angle_2 << std::endl;
 }
 
 

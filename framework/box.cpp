@@ -37,8 +37,9 @@ std::ostream& Box::print(std::ostream& os) const
     return os;
 }
 
-HitPoint Box::intersect(Ray const& r) const
+HitPoint Box::intersect(Ray const& r)
 {
+    
     glm::vec3::value_type dist = 0.0f;
     glm::vec3::value_type min_dist = std::numeric_limits<float>::infinity();
     glm::vec3 hitpt = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -60,6 +61,7 @@ HitPoint Box::intersect(Ray const& r) const
             // std::cout << "Front dist smaller: " << dist << std::endl;
             min_dist = dist;
             hitpt = tmp_hitpt;
+            hitpoint_normal = glm::vec3{0,0,1.0f};
         }
     }
     bool intersect_back = glm::intersectRayPlane(r.origin_,r.direction_,
@@ -75,6 +77,7 @@ HitPoint Box::intersect(Ray const& r) const
             // std::cout << "Back dist smaller: " << dist << std::endl;
             min_dist = dist;
             hitpt = tmp_hitpt;
+            hitpoint_normal = glm::vec3{0,0,-1.0f};
         }
     }
     bool intersect_top = glm::intersectRayPlane(r.origin_,r.direction_,
@@ -90,6 +93,7 @@ HitPoint Box::intersect(Ray const& r) const
             // std::cout << "Top dist smaller: " << dist << std::endl;
             min_dist = dist;
             hitpt = tmp_hitpt;
+            hitpoint_normal = glm::vec3{0,1.0f,0};
         }
     }
     bool intersect_bottom = glm::intersectRayPlane(r.origin_,r.direction_,
@@ -105,6 +109,7 @@ HitPoint Box::intersect(Ray const& r) const
             // std::cout << "Bottom dist smaller: " << dist << std::endl;
             min_dist = dist;
             hitpt = tmp_hitpt;
+            hitpoint_normal = glm::vec3{0,-1.0f,0};
         }
     }
     bool intersect_left = glm::intersectRayPlane(r.origin_,r.direction_,
@@ -120,6 +125,7 @@ HitPoint Box::intersect(Ray const& r) const
             // std::cout << "Left dist smaller: " << dist << std::endl;
             min_dist = dist;
             hitpt = tmp_hitpt;
+            hitpoint_normal = glm::vec3{-1.0f,0,0};
         }
     }
     bool intersect_right = glm::intersectRayPlane(r.origin_,r.direction_,
@@ -135,6 +141,7 @@ HitPoint Box::intersect(Ray const& r) const
             // std::cout << "Right dist smaller: " << dist << std::endl;
             min_dist = dist;
             hitpt = tmp_hitpt;
+            hitpoint_normal = glm::vec3{1.0f,0,0};
         }
     }
 
@@ -142,4 +149,10 @@ HitPoint Box::intersect(Ray const& r) const
         return HitPoint{true,min_dist,name_,color_,hitpt,r.direction_};
     
     return HitPoint{false};
+}
+
+glm::vec3 Box::calcNormal(glm::vec3 const& hitpoint) const {
+    // glm::vec3 center = {min_.x+((max_.x-min_.x)/2.0f),min_.y+((max_.y-min_.y)/2.0f),min_.z+((min_.z-max_.z)/2.0f)};
+    // glm::vec3 hitpoint_normal = hitpoint-center;
+    return hitpoint_normal;
 }

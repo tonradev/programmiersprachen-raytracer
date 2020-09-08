@@ -14,6 +14,7 @@
 #include "sdfparser.hpp"
 #include <vector>
 #include <memory>
+#include <numeric>
 
 Renderer::Renderer(unsigned w, unsigned h, std::string const &file)
     : width_(w), height_(h), color_buffer_(w * h, Color{0.0, 0.0, 0.0}), filename_(file), ppm_(width_, height_)
@@ -154,43 +155,69 @@ Color Renderer::trace(Ray r)
             // std::cout << "Ditance of hitpoints: " << std::endl;
             // std::cout << dist << std::endl;
             // Case: Shadow area
+            /*
             if (dist > 0.001f){
               return Color{0, 0, 0.0f};
             }
+            */
+            
+            
+            
               
           }
           
         }
-        // Calculate diffuse light
+        // Diffuse part
         float l_p = j.brightness;
-        // float kd = i->mat_.kd;
-        float kd = 0.5f;
-        // glm::vec3 normal = glm::vec3{}
-        // float angle = (normal*hp_to_light)
+        Material mat = i->mat_;
+        glm::vec3 kd = mat.kd;
+        glm::vec3 ka = mat.ka;
+        glm::vec3 ks = mat.ks;
+        int reflection_coeff = mat.m;
+        glm::vec3 normal = i->calcNormal(hp.intersection_point);
+        glm::vec3 normal_normalized = glm::normalize(i->calcNormal(hp.intersection_point));
+        glm::vec3 vec_to_light = j.pos-hp.intersection_point;
+        glm::vec3 vec_to_light_normalized = glm::normalize(j.pos-hp.intersection_point);
+       
+        float angle_diff = std::max(glm::dot(normal_normalized,vec_to_light_normalized),0.0f);
 
-        return Color{(10.0f / dist_light_hp), (0 / dist_light_hp), (0 / dist_light_hp)};
+        glm::vec3 i_diff = glm::vec3{kd.x*angle_diff, kd.y*angle_diff, kd.z*angle_diff};
+
+        Color diff_clr = Color{i_diff.x, i_diff.y, i_diff.z};
+
+        // Ambient part
+        float l_a = 0.9f;
+        Color amb_clr = Color{l_a*ka.x, l_a*ka.y, l_a*ka.z};
+
+
+        float specular = 0.0;
+        Color spec_clr = Color{0,0,0};
+
+        // Specular part
+        if (angle_diff > 0.0) {
+        glm::vec3 vec_to_camera_normalized = glm::normalize(cam.cam_pos_ - hp.intersection_point);
+        glm::vec3 vec_reflection_normalized = glm::normalize(-glm::reflect(hp_to_light_direction_normalized,normal_normalized));
+
+        glm::vec3 R_test = glm::normalize(hp_to_light_direction_normalized-2*(glm::dot(-hp_to_light_direction_normalized,normal_normalized))*normal_normalized);
+      
+        
+        float angle_spec = std::max((glm::dot(vec_reflection_normalized,vec_to_camera_normalized)),0.0f);
+
+        specular = std::pow(angle_spec, reflection_coeff);
+
+        spec_clr = Color{(ks.x*specular),(ks.y*specular),(ks.z*specular)};
+        
+        }
+        float clr_r = {l_a*ka.x+l_p*(kd.x*angle_diff+ks.x*specular)};
+        float clr_g = {l_a*ka.y+l_p*(kd.y*angle_diff+ks.y*specular)};
+        float clr_b = {l_a*ka.z+l_p*(kd.z*angle_diff+ks.z*specular)};
+        return Color{clr_r,clr_g,clr_b};
+
+        // return Color{(diff_clr.r+amb_clr.r+spec_clr.r),(diff_clr.g+amb_clr.g+spec_clr.g),(diff_clr.b+amb_clr.b+spec_clr.b)};
 
       }
       return Color{0.0f, 0.0f, 1.0f};
     }
   }
-  return Color{1.0f,1.0f,1.0f};
+  return Color{.1f,.1f,.1f};
 }
-
-/*
-Color Renderer::trace_light(Ray r)
-{
-  for (auto const& i : objects)
-  {
-    if (i->intersect(r).intersect)
-    {
-      return Color{255.0f,0.0f,0.0f};
-    }
-    else 
-    {
-    return Color{255.0f,255.0f,255.0f};
-    }
-  }
-
-}
-*/

@@ -29,7 +29,7 @@ std::ostream& Sphere::print(std::ostream& os) const
     return os;
 }
 
-HitPoint Sphere::intersect(Ray const& r) const
+HitPoint Sphere::intersect(Ray const& r)
 {
     glm::vec3::value_type dist = 0.0;
     glm::vec3 ray_direction_normalized = glm::normalize(r.direction_);
@@ -37,6 +37,28 @@ HitPoint Sphere::intersect(Ray const& r) const
     bool intersect = glm::intersectRaySphere(r.origin_, ray_direction_normalized, center_, radius_*radius_, dist);
     if (intersect) {
         // return true;
+        glm::vec3 intersection_point = glm::vec3{(r.origin_+dist*r.direction_)};
+
+        /*
+
+        std::cout << "===========================================" << std::endl;
+
+        std::cout << "RAY DIRECTION" << std::endl;
+        std::cout << r.direction_.x << " " << r.direction_.y << " " << r.direction_.z << std::endl;
+
+        std::cout << "CENTER" << std::endl;
+        std::cout << center_.x << " " << center_.y << " " << center_.z << std::endl;
+            
+        std::cout << "INTERSECTION POINT" << std::endl;
+        std::cout << intersection_point.x << " " << intersection_point.y << " " << intersection_point.z << std::endl;
+
+        std::cout << "NORMAL: " << std::endl;
+        std::cout << hitpoint_normal_.x << " " << hitpoint_normal_.y << " " << hitpoint_normal_.z << std::endl;
+        
+        std::cout << "===========================================" << std::endl;
+
+        */
+        
         
         HitPoint result = {intersect, dist, name_, color_, (r.origin_+dist*r.direction_), r.direction_};
         return result;
@@ -46,4 +68,13 @@ HitPoint Sphere::intersect(Ray const& r) const
         // return false;
         return HitPoint{intersect};
     }
+}
+
+glm::vec3 Sphere::getCenter() const {
+    return center_;
+}
+
+glm::vec3 Sphere::calcNormal(glm::vec3 const& hitpoint) const {
+    glm::vec3 hitpoint_normal = hitpoint-center_;
+    return hitpoint_normal;
 }

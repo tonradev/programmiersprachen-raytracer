@@ -35,6 +35,12 @@ HitPoint Sphere::intersect(Ray const& r)
     glm::vec3 ray_direction_normalized = glm::normalize(r.direction_);
 
     bool intersect = glm::intersectRaySphere(r.origin_, ray_direction_normalized, center_, radius_*radius_, dist);
+    /*
+    if (name_ == "bsphere" && dist < 0) {
+        std::cout << "DIST BSPHERE" << dist << std::endl;
+    }
+    */
+    
     if (intersect) {
         // return true;
         glm::vec3 intersection_point = glm::vec3{(r.origin_+dist*r.direction_)};

@@ -180,17 +180,18 @@ TEST_CASE("Destructors", "[Destructors]")
 }
 */
 
+/*
 TEST_CASE("TEST INTERSECTIONS", "[intersect]")
 {
   Ray r1 = Ray{{0,0,0},{0,0,-1.0f}};
-  /*
+  
   Sphere s1 = Sphere{{0,0,-40.0f},10.0f,"Sphere1","red"};
   std::cout << s1.intersect(r1).intersect << std::endl;
   std::cout << s1.intersect(r1).intersection_point.x << std::endl;
     std::cout << s1.intersect(r1).intersection_point.y << std::endl;
 
   std::cout << s1.intersect(r1).intersection_point.z << std::endl;
-  */
+  
   Box b1 = Box{{-5.0f,-5.0f,-40.0f},{5.0f,5.0f,-50.0f},"Box1","red"};
 
   // glm::vec3 hp = b1.intersect(r1).intersection_point;
@@ -254,6 +255,26 @@ TEST_CASE("TEST INTERSECTIONS", "[intersect]")
   std::cout << cos_angle_spec << std::endl;
 
   std::cout << cos_angle_2 << std::endl;
+
+}
+*/
+
+TEST_CASE("TEST INTERSECT FOR SHADOWS", "[intersect_shadows]")
+{
+  Box b2 = Box{glm::vec3{-30.0f,0,-20.0f},glm::vec3{30.0f,1.0f,-40.0f},"b2","blue"};
+
+  Sphere s2 = Sphere{glm::vec3{0,10.0f,-25.0f},5.0f,"s2","red"};
+
+  Light l2 = Light{"l2",glm::vec3{0,80.0f,-30.0f},Color{0.5f,0.5f,0.5f},1.0f};
+
+  
+
+  Ray r2 = Ray{glm::vec3{0,6.0f,-30.0f},glm::vec3{0,1.0f,0}};
+
+  std::cout << "INTERSECT RAY - BOX? " << b2.intersect(r2).intersect << std::endl;
+  std::cout << b2.intersect(r2).intersection_point.x << std::endl;
+  std::cout << b2.intersect(r2).intersection_point.y << std::endl;
+  std::cout << b2.intersect(r2).intersection_point.z << std::endl;
 }
 
 

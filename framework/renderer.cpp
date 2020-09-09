@@ -21,13 +21,6 @@ Renderer::Renderer(unsigned w, unsigned h, std::string const &file)
 {
 }
 
-/*
-Material m1 = {"red", {1.0,0,0},{1.0,0,0},{1.0,0,0},1};
-Camera c1 = Camera{{0.0f,0.0f,0.0f},45.0};
-Sphere sp2 = {{0.0f,0.0f,-40.0f},5.5f,"sp2","red"};
-// Box b9 = Box{{0.0f,0.0f,0.0f},{3.0f,4.2f,-4.0f},"Box9"};
-Box b9 = Box{{0.0f,0.0f,-40.0f},{50.0f,10.0f,-50.0f},"Box9","red"};
-*/
 
 SdfParser parser = {"scene1.sdf"};
 
@@ -109,6 +102,7 @@ Color Renderer::trace(Ray r)
   // Check if the ray crosses any object
   for (auto const &i : objects)
   {
+    // std::cout << i->name_ << std::endl;
     
     if (i->intersect(r).intersect)
     {
@@ -143,42 +137,18 @@ Color Renderer::trace(Ray r)
 
 
         glm::vec3 hp_to_light_direction_normalized = glm::normalize(hp_to_light_direction);
-        Ray hp_to_light = {hp.intersection_point, hp_to_light_direction};
-        Ray hp_to_light_offset = {hp.intersection_point + (hp_to_light_direction_normalized / 10.0f), hp_to_light_direction};
+        Ray hp_to_light = {hp.intersection_point, hp_to_light_direction_normalized};
+        //Ray hp_to_light_offset = {hp.intersection_point + (hp_to_light_direction_normalized / 10.0f), hp_to_light_direction};
         // std::cout << hp.intersection_point.x << " " << hp.intersection_point.y << " " << hp.intersection_point.z << std::endl;
         //std::cout << hp.intersection_point.x << " " << hp.intersection_point.y << " " << hp.intersection_point.z << std::endl;
 
         // Calculate distance between hitpoint and light
-        float dist_light_hp = {sqrt(pow(j.pos.x - hp.intersection_point.x, 2) + pow(j.pos.y - hp.intersection_point.y, 2) + pow(j.pos.z - hp.intersection_point.z, 2))};
+        //float dist_light_hp = {sqrt(pow(j.pos.x - hp.intersection_point.x, 2) + pow(j.pos.y - hp.intersection_point.y, 2) + pow(j.pos.z - hp.intersection_point.z, 2))};
 
-        Ray hp_to_light_inverted = {j.pos, (hp.intersection_point - j.pos)};
+        //Ray hp_to_light_inverted = {j.pos, (hp.intersection_point - j.pos)};
 
         Material mat = i->mat_;
 
-        for (auto const &k : objects)
-        {
-          if (k->intersect(hp_to_light_inverted).intersect)
-          {
-            // std::cout << k->name_ << std::endl;
-            HitPoint hp2 = k->intersect(hp_to_light_inverted);
-            // std::cout << "INTERSECTION POINT LIGHT -> OBJECT:" << std::endl;
-            // std::cout << hp2.intersection_point.x << " " << hp2.intersection_point.y << " " << hp2.intersection_point.z << std::endl;
-            float dist = {sqrt(pow(hp2.intersection_point.x - hp.intersection_point.x, 2) + pow(hp2.intersection_point.y - hp.intersection_point.y, 2) + pow(hp2.intersection_point.z - hp.intersection_point.z, 2))};
-            // std::cout << "Ditance of hitpoints: " << std::endl;
-            // std::cout << dist << std::endl;
-            // Case: Shadow area
-            
-            if (dist > 0.01f){
-              return Color{mat.ka.x,mat.ka.y,mat.ka.z};
-            }
-            
-            
-            
-            
-              
-          }
-          
-        }
         // Diffuse part
         float l_p = j.brightness;
         
@@ -215,10 +185,43 @@ Color Renderer::trace(Ray r)
         spec_clr = Color{(ks.x*specular),(ks.y*specular),(ks.z*specular)};
         
         }
+        bool in_shadow = false;
+        for (auto const &k : objects)
+        {
+          if (k->name_ != i->name_ && k->intersect(hp_to_light).intersect)
+          {
+            // std::cout << k->name_ << std::endl;
+            HitPoint hp2 = k->intersect(hp_to_light);
+            if(i->name_ == "bsphere"){
+              std::cout << "RAY ORIGIN: " << hp_to_light.origin_.x << " " << hp_to_light.origin_.y << " " << hp_to_light.origin_.z << std::endl;
 
-        clr_r += l_p*(kd.x*angle_diff+ks.x*specular);
-        clr_g += l_p*(kd.y*angle_diff+ks.y*specular);
-        clr_b += l_p*(kd.z*angle_diff+ks.z*specular);
+              std::cout << "RAY DIRECTION: " << hp_to_light.direction_.x << " " << hp_to_light.direction_.y << " " << hp_to_light.direction_.z << std::endl;
+                std::cout << "INTERSECTION POINT LIGHT -> OBJECT:" << std::endl;
+            std::cout << hp2.intersection_point.x << " " << hp2.intersection_point.y << " " << hp2.intersection_point.z << std::endl;
+
+            float dist = {sqrt(pow(hp2.intersection_point.x - hp.intersection_point.x, 2) + pow(hp2.intersection_point.y - hp.intersection_point.y, 2) + pow(hp2.intersection_point.z - hp.intersection_point.z, 2))};
+            std::cout << "Ditance of hitpoints: " << std::endl;
+            std::cout << dist << std::endl;
+            }
+            
+            
+            // Case: Shadow area
+            
+            /*
+            if (dist > 0.01f){
+              // return Color{mat.ka.x,mat.ka.y,mat.ka.z};
+            }
+            */
+           // in_shadow = true;
+           break;
+          }
+          
+        }
+        if(!in_shadow){
+          clr_r += l_p*(kd.x*angle_diff+ks.x*specular);
+          clr_g += l_p*(kd.y*angle_diff+ks.y*specular);
+          clr_b += l_p*(kd.z*angle_diff+ks.z*specular);
+        }
 
         // return Color{(diff_clr.r+amb_clr.r+spec_clr.r),(diff_clr.g+amb_clr.g+spec_clr.g),(diff_clr.b+amb_clr.b+spec_clr.b)};
 

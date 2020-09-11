@@ -7,6 +7,7 @@
 #include <sphere.hpp>
 #include <iostream>
 #include "light.hpp"
+#include <glm/gtx/string_cast.hpp>
 
 /*
 TEST_CASE("Box area", "[Box_area]")
@@ -259,6 +260,7 @@ TEST_CASE("TEST INTERSECTIONS", "[intersect]")
 }
 */
 
+/*
 TEST_CASE("TEST INTERSECT FOR SHADOWS", "[intersect_shadows]")
 {
   Box b2 = Box{glm::vec3{-30.0f,0,-20.0f},glm::vec3{30.0f,1.0f,-40.0f},"b2","blue"};
@@ -275,6 +277,22 @@ TEST_CASE("TEST INTERSECT FOR SHADOWS", "[intersect_shadows]")
   std::cout << b2.intersect(r2).intersection_point.x << std::endl;
   std::cout << b2.intersect(r2).intersection_point.y << std::endl;
   std::cout << b2.intersect(r2).intersection_point.z << std::endl;
+}
+*/
+
+TEST_CASE("TEST SCALING", "[scaling]")
+{
+
+  Sphere s2 = Sphere{glm::vec3{0,10.0f,-25.0f},5.0f,"s2","red"};
+
+  std::cout << "S2 WORLD TRANSFORMATION MATRIX BEFORE APPLYING SCALING: " << std::endl;
+  std::cout << glm::to_string(s2.world_transformation_) << std::endl;
+
+  s2.applyScaling(2.0f,2.0f,2.0f);
+
+  std::cout << "S2 WORLD TRANSFORMATION MATRIX AFTER APPLYING SCALING: " << std::endl;
+  std::cout << glm::to_string(s2.world_transformation_) << std::endl;
+
 }
 
 

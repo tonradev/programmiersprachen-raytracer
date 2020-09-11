@@ -16,6 +16,10 @@ SdfParser::SdfParser(std::string sdf_file)
   std::string identifier;    
   std::string class_name;
 
+  std::map<std::string,glm::vec3> scaleprops;
+  std::map<std::string,glm::vec3> translateprops;
+  std::map<std::string,glm::vec4> rotateprops;
+
   while( std::getline(in_file, line_buffer)  ) {
     //std::cout << ++line_count << ": " << line_buffer << std::endl; 
     
@@ -129,10 +133,24 @@ SdfParser::SdfParser(std::string sdf_file)
       else if ("camera" == class_name) {
         std::string name;
         float fov_x;
+        float eye_pos_x;
+        float eye_pos_y;
+        float eye_pos_z;
+        float dir_x;
+        float dir_y;
+        float dir_z;
+        float up_x;
+        float up_y;
+        float up_z;
 
-        in_sstream >> name >> fov_x;
+        in_sstream >> name >> fov_x >> eye_pos_x >> eye_pos_y >> eye_pos_z >> dir_x >> dir_y >> dir_z >> up_x >> up_y >> up_z;
 
-        camera_ = Camera{name, fov_x};
+        glm::vec3 eye_pos{eye_pos_x,eye_pos_y,eye_pos_z};
+        glm::vec3 dir{dir_x,dir_y,dir_z};
+        glm::vec3 up{up_x,up_y,up_z};
+
+
+        camera_ = Camera{name, fov_x, eye_pos, dir, up};
       }
       else {
         std::cout << "Invalid SDF syntax in line, cannot parse!" << std::endl;
@@ -142,6 +160,59 @@ SdfParser::SdfParser(std::string sdf_file)
       float ambient_1, ambient_2, ambient_3;
 
       in_sstream >> ambient_1 >> ambient_2 >> ambient_3;
+    }
+    else if("transform" == identifier) {
+      std::string transformation_type;
+      in_sstream >> transformation_type;
+      std::string object_name;
+      in_sstream >> object_name;
+
+      if("scale" == transformation_type){
+
+        float s1, s2, s3;
+
+        in_sstream >> s1 >> s2 >> s3;
+
+        // in_sstream >> scaleprops[object_name].x >> scaleprops[object_name].y >> scaleprops[object_name].z;
+
+        // Shape* result = [object_name](Shape* s) { return s->name_ == object_name; }, shapes_;
+
+        for (auto & i : shapes_) {
+          if (i->name_ == object_name) {
+            i->applyScaling(s1, s2, s3);
+            continue;
+          }
+        }
+
+        std::cout << "Object not found, scaling failed." << std::endl;
+
+      }
+      
+      else if("translate" == transformation_type){
+
+        float t1, t2, t3;
+
+        in_sstream >> t1 >> t2 >> t3;
+
+        for (auto & i : shapes_) {
+          if (i->name_ == object_name) {
+            i->applyTranslation(t1, t2, t3);
+            continue;
+          }
+        }
+
+        std::cout << "Object not found, scaling failed." << std::endl;
+
+      }
+      /*
+      else if("rotate" == transformation_type){
+        std::string object_name;
+        in_sstream >> object_name;
+
+        in_sstream >> rotateprops[object_name].p >> rotateprops[object_name].q >> rotateprops[object_name].r >> render_properties_.rotateprops[object_name].s;
+
+      }
+      */
     }
     else if("render" == identifier) {
       std::string cam_name;

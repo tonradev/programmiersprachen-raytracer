@@ -15,24 +15,25 @@
 #include <vector>
 #include <memory>
 #include <numeric>
+#include <glm/gtx/string_cast.hpp>
 
-Renderer::Renderer(unsigned w, unsigned h, std::string const &file)
-    : width_(w), height_(h), color_buffer_(w * h, Color{0.0, 0.0, 0.0}), filename_(file), ppm_(width_, height_)
+Renderer::Renderer(unsigned w, unsigned h, std::string const &file, SdfParser const& parser, RenderProps const& render_props, std::vector<Shape*> objects, std::map<std::string, Material> const& materials,std::vector<Light> const& lights, Camera const& cam)
+    : width_(w),
+    height_(h),
+    color_buffer_(w * h, Color{0.0, 0.0, 0.0}),
+    filename_(file),
+    parser_(parser),
+    render_props_(render_props),
+    objects_(objects),
+    materials_(materials),
+    lights_(lights),
+    cam_(cam),
+    ppm_(width_, height_)
 {
+  
 }
 
 
-SdfParser parser = {"scene1.sdf"};
-
-RenderProps render_props = parser.getRenderProperties();
-
-std::vector<Shape *> objects = parser.getShapes();
-
-std::map<std::string, Material> materials = parser.getMaterials();
-
-std::vector<Light> lights = parser.getLights();
-
-Camera cam = parser.getCamera();
 
 void Renderer::render()
 {
@@ -44,7 +45,7 @@ void Renderer::render()
     for (unsigned x = 0; x < width_; ++x)
     {
       Pixel p(x, y);
-      p.color = trace(compute_ray(cam, p));
+      p.color = trace(compute_ray(cam_, p));
       /*
       if ( ((x/checker_pattern_size)%2) != ((y/checker_pattern_size)%2)) {
         p.color = Color{0.0f, 1.0f, float(x)/height_};
@@ -81,18 +82,41 @@ Ray Renderer::compute_ray(Camera const &cam, Pixel const &p)
 {
   // float pix_width = 1.0f/cam.plane_width_;
   float plane_width = tan(cam.fov_x_ * M_PI / 180);
-  float pix_width = plane_width / render_props.x_res;
-  float plane_height = render_props.y_res * pix_width;
+  float pix_width = plane_width / render_props_.x_res;
+  float plane_height = render_props_.y_res * pix_width;
+
+  
 
   glm::vec3 pixel_on_plane = {((-plane_width / 2.0f) + (pix_width * p.x)), ((-plane_height / 2.0f) + (pix_width * p.y)), -1.0f};
 
+  
   // glm::vec3 pixel_on_plane = {(cam.plane_pos_.x-((cam.plane_width_/2.0f)*pix_width)+(p.x*pix_width)),(cam.plane_pos_.y-((cam.plane_height_/2.0f)*pix_width)+(p.y*pix_width)),-1.0f};
   Ray eye_ray = {cam.cam_pos_, {pixel_on_plane.x, pixel_on_plane.y, pixel_on_plane.z}};
-  if (p.x == 0 && p.y == 0)
-  {
-    std::cout << "X" << eye_ray.direction_.x << "Y" << eye_ray.direction_.y << "Z" << eye_ray.direction_.z << std::endl;
-  }
-  return eye_ray;
+
+  /*
+  std::cout << "Eye ray before transofrmaiozn: " << std::endl;
+  std::cout << "X" << eye_ray.origin_.x << "Y" << eye_ray.origin_.y << "Z" << eye_ray.origin_.z << std::endl;
+
+  std::cout << "X" << eye_ray.direction_.x << "Y" << eye_ray.direction_.y << "Z" << eye_ray.direction_.z << std::endl;
+  */
+  glm::vec4 eye_ray_origin_transformed = cam.world_transformation_*glm::vec4{eye_ray.origin_,1.0f};
+  glm::vec4 eye_ray_direction_transformed = cam.world_transformation_*glm::vec4{eye_ray.direction_,0};
+  /*
+  std::cout << glm::to_string(cam.world_transformation_) << std::endl;
+
+std::cout << glm::to_string(cam.fov_x_) << std::endl;
+  std::cout << glm::to_string(cam.cam_direction_) << std::endl;
+            std::cout << glm::to_string(cam.up_) << std::endl;
+
+  std::cout << "Eye ray after transofrmaiozn: " << std::endl;
+  std::cout << "X" << eye_ray_origin_transformed.x << "Y" << eye_ray_origin_transformed.y << "Z" << eye_ray_origin_transformed.z << std::endl;
+
+  std::cout << "X" << eye_ray_direction_transformed.x << "Y" << eye_ray_direction_transformed.y << "Z" << eye_ray_direction_transformed.z << std::endl;
+  */
+  Ray res = Ray{glm::vec3{eye_ray_origin_transformed},glm::vec3{eye_ray_direction_transformed}};
+  // std::cout << glm::to_string(res.origin_) << std::endl;
+  return res;
+  // return eye_ray;
 }
 
 Color Renderer::trace(Ray r)
@@ -100,19 +124,39 @@ Color Renderer::trace(Ray r)
   // Tracing of a single ray
 
   // Check if the ray crosses any object
-  for (auto const &i : objects)
+  for (auto const &i : objects_)
   {
     // std::cout << i->name_ << std::endl;
-    
+
+    std::string object_name = i->name_;
+
+    /*
+    if (.x != 0) {
+    std::cout << "OUTPUT: " << render_props_.scaleprops[object_name].x << std::endl;
+    }
+
+    if(render_props_.scaleprops[object_name].x != 0) {
+      std::cout << "TRANSFORMATION DETECTED" << std::endl;
+      glm::mat4 scale_mat = glm::mat4{
+                              glm::vec4{render_props_.scaleprops[object_name].x,0,0,0},
+                              glm::vec4{0,render_props_.scaleprops[object_name].y,0,0},
+                              glm::vec4{0,0,render_props_.scaleprops[object_name].z,0},
+                              glm::vec4{0,0,0,0}};
+      }
+      */
+
+    // std::cout << glm::to_string(r.direction_) << std::endl;
     if (i->intersect(r).intersect)
     {
       // Ray crossed this object, retrieve HitPoint
+      std::cout << "before" << std::endl;
       HitPoint hp = i->intersect(r);
-
-      /*
+      std::cout << "r origin: " << r.origin_.x << " " << r.origin_.y << " " << r.origin_.z << std::endl;
+      std::cout << "r direction: " << r.direction_.x << " " << r.direction_.y << " " << r.direction_.z << std::endl;
+      
       std::cout << "CAMERA RAY CROSSED OBJECT AT: " << std::endl;
       std::cout << hp.intersection_point.x << " " << hp.intersection_point.y << " " << hp.intersection_point.z << std::endl;
-      */
+      
 
       // Ambient properties
       float l_a = 0.9f;
@@ -124,12 +168,12 @@ Color Renderer::trace(Ray r)
       float clr_b = l_a*ka.z;
 
       // Check the lights
-      for (auto const &j : lights)
+      for (auto const &j : lights_)
       {
         // PRINT LIGHT POSITION
         // std::cout << "LIGHT POSITION:" << std::endl;
         // std::cout << j.pos.x << " " << j.pos.y << " " << j.pos.z << std::endl;
-
+        //std::cout << "intersection: " << hp.intersection_point.x << " " << hp.intersection_point.y << " " << hp.intersection_point.z << std::endl;
         glm::vec3 hp_to_light_direction = j.pos - hp.intersection_point;
 
         // std::cout << "LIGHT TO HITPOINT DIRECTION:" << std::endl;
@@ -156,6 +200,7 @@ Color Renderer::trace(Ray r)
         glm::vec3 ks = mat.ks;
         int reflection_coeff = mat.m;
         glm::vec3 normal = i->calcNormal(hp.intersection_point);
+        std::cout << "normal: " << normal.x << " " << normal.y << " " << normal.z << std::endl;
         glm::vec3 normal_normalized = glm::normalize(i->calcNormal(hp.intersection_point));
         glm::vec3 vec_to_light = j.pos-hp.intersection_point;
         glm::vec3 vec_to_light_normalized = glm::normalize(j.pos-hp.intersection_point);
@@ -172,7 +217,7 @@ Color Renderer::trace(Ray r)
 
         // Specular part
         if (angle_diff > 0.0) {
-        glm::vec3 vec_to_camera_normalized = glm::normalize(cam.cam_pos_ - hp.intersection_point);
+        glm::vec3 vec_to_camera_normalized = glm::normalize(cam_.cam_pos_ - hp.intersection_point);
         glm::vec3 vec_reflection_normalized = glm::normalize(-glm::reflect(hp_to_light_direction_normalized,normal_normalized));
 
         glm::vec3 R_test = glm::normalize(hp_to_light_direction_normalized-2*(glm::dot(-hp_to_light_direction_normalized,normal_normalized))*normal_normalized);
@@ -186,7 +231,7 @@ Color Renderer::trace(Ray r)
         
         }
         bool in_shadow = false;
-        for (auto const &k : objects)
+        for (auto const &k : objects_)
         {
           if (k->name_ != i->name_ && k->intersect(hp_to_light).intersect)
           {

@@ -1,6 +1,7 @@
 #include <sphere.hpp>
 #include <cmath>
 #include <glm/gtx/intersect.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 Sphere::Sphere(glm::vec3 const& center, float const radius, std::string name, std::string mat_name) :
     Shape(name, mat_name),
@@ -29,8 +30,9 @@ std::ostream& Sphere::print(std::ostream& os) const
     return os;
 }
 
-HitPoint Sphere::intersect(Ray const& r)
+HitPoint Sphere::intersect(Ray r)
 {
+    r = r.transformRay(world_transformation_inv_);
     glm::vec3::value_type dist = 0.0;
     glm::vec3 ray_direction_normalized = glm::normalize(r.direction_);
 
@@ -42,31 +44,14 @@ HitPoint Sphere::intersect(Ray const& r)
     */
     
     if (intersect) {
-        // return true;
         glm::vec3 intersection_point = glm::vec3{(r.origin_+dist*r.direction_)};
+        std::cout << glm::to_string(intersection_point) << std::endl;
+        intersection_point = glm::vec3{world_transformation_*glm::vec4{intersection_point,1.0f}};
 
-        /*
-
-        std::cout << "===========================================" << std::endl;
-
-        std::cout << "RAY DIRECTION" << std::endl;
-        std::cout << r.direction_.x << " " << r.direction_.y << " " << r.direction_.z << std::endl;
-
-        std::cout << "CENTER" << std::endl;
-        std::cout << center_.x << " " << center_.y << " " << center_.z << std::endl;
-            
-        std::cout << "INTERSECTION POINT" << std::endl;
-        std::cout << intersection_point.x << " " << intersection_point.y << " " << intersection_point.z << std::endl;
-
-        std::cout << "NORMAL: " << std::endl;
-        std::cout << hitpoint_normal_.x << " " << hitpoint_normal_.y << " " << hitpoint_normal_.z << std::endl;
+        std::cout << glm::to_string(intersection_point) << std::endl;
         
-        std::cout << "===========================================" << std::endl;
-
-        */
-        
-        
-        HitPoint result = {intersect, dist, name_, color_, (r.origin_+dist*r.direction_), r.direction_};
+        HitPoint result = {intersect, dist, name_, color_, intersection_point, r.direction_};
+        std::cout << glm::to_string(result.intersection_point) << std::endl;
         return result;
         
     }
@@ -77,10 +62,11 @@ HitPoint Sphere::intersect(Ray const& r)
 }
 
 glm::vec3 Sphere::getCenter() const {
-    return center_;
+    glm::vec4 res = world_transformation_inv_*glm::vec4{center_.x, center_.y, center_.z, 1.0f};
+    return glm::vec3{res};
 }
 
 glm::vec3 Sphere::calcNormal(glm::vec3 const& hitpoint) const {
-    glm::vec3 hitpoint_normal = hitpoint-center_;
+    glm::vec3 hitpoint_normal = hitpoint-getCenter();
     return hitpoint_normal;
 }

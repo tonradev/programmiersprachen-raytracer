@@ -20,8 +20,13 @@ int main(int argc, char* argv[])
   unsigned const image_width = render_props.x_res;
   unsigned const image_height = render_props.y_res;
   std::string const filename = render_props.filename;
+  std::vector<Shape *> objects = parser.getShapes();
+  std::map<std::string, Material> materials = parser.getMaterials();
+  std::vector<Light> lights = parser.getLights();
+  Camera cam = parser.getCamera();
+  
 
-  Renderer renderer{image_width, image_height, filename};
+  Renderer renderer{image_width, image_height, filename, parser, render_props, objects, materials, lights, cam};
 
   renderer.render();
 

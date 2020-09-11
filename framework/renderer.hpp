@@ -17,11 +17,14 @@
 #include "camera.hpp"
 #include <string>
 #include <glm/glm.hpp>
+#include "renderprops.hpp"
+#include "sdfparser.hpp"
+
 
 class Renderer
 {
 public:
-  Renderer(unsigned w, unsigned h, std::string const& file);
+  Renderer(unsigned w, unsigned h, std::string const &file, SdfParser const& parser, RenderProps const& render_props, std::vector<Shape*> objects, std::map<std::string, Material> const& materials,std::vector<Light> const& lights, Camera const& cam);
 
   void render();
   void write(Pixel const& p);
@@ -38,7 +41,14 @@ private:
   unsigned height_;
   std::vector<Color> color_buffer_;
   std::string filename_;
+  SdfParser parser_;
+  RenderProps render_props_;
+  std::vector<Shape *> objects_;
+  std::map<std::string, Material> materials_;
+  std::vector<Light> lights_;
+  Camera cam_;
   PpmWriter ppm_;
+  
 };
 
 #endif // #ifndef BUW_RENDERER_HPP

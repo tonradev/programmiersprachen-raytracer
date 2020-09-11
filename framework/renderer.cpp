@@ -149,13 +149,13 @@ Color Renderer::trace(Ray r)
     if (i->intersect(r).intersect)
     {
       // Ray crossed this object, retrieve HitPoint
-      std::cout << "before" << std::endl;
+      // std::cout << "before" << std::endl;
       HitPoint hp = i->intersect(r);
-      std::cout << "r origin: " << r.origin_.x << " " << r.origin_.y << " " << r.origin_.z << std::endl;
-      std::cout << "r direction: " << r.direction_.x << " " << r.direction_.y << " " << r.direction_.z << std::endl;
+      // std::cout << "r origin: " << r.origin_.x << " " << r.origin_.y << " " << r.origin_.z << std::endl;
+      // std::cout << "r direction: " << r.direction_.x << " " << r.direction_.y << " " << r.direction_.z << std::endl;
       
-      std::cout << "CAMERA RAY CROSSED OBJECT AT: " << std::endl;
-      std::cout << hp.intersection_point.x << " " << hp.intersection_point.y << " " << hp.intersection_point.z << std::endl;
+      // std::cout << "CAMERA RAY CROSSED OBJECT AT: " << std::endl;
+      // std::cout << hp.intersection_point.x << " " << hp.intersection_point.y << " " << hp.intersection_point.z << std::endl;
       
 
       // Ambient properties
@@ -200,7 +200,7 @@ Color Renderer::trace(Ray r)
         glm::vec3 ks = mat.ks;
         int reflection_coeff = mat.m;
         glm::vec3 normal = i->calcNormal(hp.intersection_point);
-        std::cout << "normal: " << normal.x << " " << normal.y << " " << normal.z << std::endl;
+        // std::cout << "normal: " << normal.x << " " << normal.y << " " << normal.z << std::endl;
         glm::vec3 normal_normalized = glm::normalize(i->calcNormal(hp.intersection_point));
         glm::vec3 vec_to_light = j.pos-hp.intersection_point;
         glm::vec3 vec_to_light_normalized = glm::normalize(j.pos-hp.intersection_point);
@@ -238,15 +238,18 @@ Color Renderer::trace(Ray r)
             // std::cout << k->name_ << std::endl;
             HitPoint hp2 = k->intersect(hp_to_light);
             if(i->name_ == "bsphere"){
+              /*
               std::cout << "RAY ORIGIN: " << hp_to_light.origin_.x << " " << hp_to_light.origin_.y << " " << hp_to_light.origin_.z << std::endl;
 
               std::cout << "RAY DIRECTION: " << hp_to_light.direction_.x << " " << hp_to_light.direction_.y << " " << hp_to_light.direction_.z << std::endl;
                 std::cout << "INTERSECTION POINT LIGHT -> OBJECT:" << std::endl;
             std::cout << hp2.intersection_point.x << " " << hp2.intersection_point.y << " " << hp2.intersection_point.z << std::endl;
-
+            */
             float dist = {sqrt(pow(hp2.intersection_point.x - hp.intersection_point.x, 2) + pow(hp2.intersection_point.y - hp.intersection_point.y, 2) + pow(hp2.intersection_point.z - hp.intersection_point.z, 2))};
+            /*
             std::cout << "Ditance of hitpoints: " << std::endl;
             std::cout << dist << std::endl;
+            */
             }
             
             
@@ -257,7 +260,7 @@ Color Renderer::trace(Ray r)
               // return Color{mat.ka.x,mat.ka.y,mat.ka.z};
             }
             */
-           // in_shadow = true;
+           in_shadow = true;
            break;
           }
           
@@ -271,7 +274,14 @@ Color Renderer::trace(Ray r)
         // return Color{(diff_clr.r+amb_clr.r+spec_clr.r),(diff_clr.g+amb_clr.g+spec_clr.g),(diff_clr.b+amb_clr.b+spec_clr.b)};
 
       }
+
+      // Tone mapping
+      clr_r = clr_r/(clr_r+1);
+      clr_g = clr_g/(clr_g+1);
+      clr_b = clr_b/(clr_b+1);
+      
       return Color{clr_r,clr_g,clr_b};
+
     }
   }
   return Color{.1f,.1f,.1f};

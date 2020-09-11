@@ -45,13 +45,14 @@ HitPoint Sphere::intersect(Ray r)
     
     if (intersect) {
         glm::vec3 intersection_point = glm::vec3{(r.origin_+dist*r.direction_)};
-        std::cout << glm::to_string(intersection_point) << std::endl;
+        // std::cout << glm::to_string(intersection_point) << std::endl;
         intersection_point = glm::vec3{world_transformation_*glm::vec4{intersection_point,1.0f}};
 
-        std::cout << glm::to_string(intersection_point) << std::endl;
+        // std::cout << "SPHERE INTERSECTION PT: " << std::endl;
+        // std::cout << glm::to_string(intersection_point) << std::endl;
         
         HitPoint result = {intersect, dist, name_, color_, intersection_point, r.direction_};
-        std::cout << glm::to_string(result.intersection_point) << std::endl;
+        // std::cout << glm::to_string(result.intersection_point) << std::endl;
         return result;
         
     }

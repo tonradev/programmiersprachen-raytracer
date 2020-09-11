@@ -44,8 +44,8 @@ HitPoint Box::intersect(Ray r)
     glm::vec3::value_type min_dist = std::numeric_limits<float>::infinity();
     glm::vec3 hitpt = glm::vec3(1.0f, 1.0f, 1.0f);
 
-    // glm::vec3 min_transformed = glm::vec3{world_transformation_inv_*glm::vec4{min_.x,min_.y,min_.z,1.0f}};
-    // glm::vec3 max_transformed = glm::vec3{world_transformation_inv_*glm::vec4{max_.x,max_.y,max_.z,0}};
+    // min_ = glm::vec3{world_transformation_*glm::vec4{min_.x,min_.y,min_.z,1.0f}};
+    // max_ = glm::vec3{world_transformation_*glm::vec4{max_.x,max_.y,max_.z,0}};
 
     // glm::vec3 ray_direction_normalized = glm::normalize(r.direction_);
 
@@ -67,10 +67,11 @@ HitPoint Box::intersect(Ray r)
     // std::cout << "TOP NORMAL CALCULATED WITH CROSS PRODUCT: " << std::endl;
     // std::cout << normal_top.x << " " << normal_top.y << " " << normal_top.z << std::endl;
 
-    // glm::vec3 normal_front = glm::vec3{world_transformation_inv_*glm::vec4{0,0,1.0f,0}};
+    // glm::vec3 normal_front = glm::vec3{world_transformation_*glm::vec4{0,0,1.0f,0}};
+    glm::vec3 normal_front = glm::normalize(glm::vec3{0,0,1.0f});
     
     bool intersect_front = glm::intersectRayPlane(r.origin_,r.direction_,
-                                                  glm::vec3{min_.x,min_.y,min_.z},glm::vec3{0,0,1.0f},dist);
+                                                  glm::vec3{min_.x,min_.y,min_.z},normal_front,dist);
 
     if (intersect_front && dist < min_dist)
     {
@@ -89,7 +90,9 @@ HitPoint Box::intersect(Ray r)
         }
     }
 
-    glm::vec3 normal_back = glm::vec3{world_transformation_inv_*glm::vec4{0,0,-1.0f,0}};
+    // glm::vec3 normal_back = glm::vec3{world_transformation_*glm::vec4{0,0,-1.0f,0}};
+
+    glm::vec3 normal_back = glm::normalize(glm::vec3{0,0,-1.0f});
 
     bool intersect_back = glm::intersectRayPlane(r.origin_,r.direction_,
                                                 glm::vec3{min_.x,min_.y,max_.z},normal_back,dist);
@@ -110,7 +113,9 @@ HitPoint Box::intersect(Ray r)
         }
     }
 
-    glm::vec3 normal_top = glm::vec3{world_transformation_inv_*glm::vec4{0,1.0f,0,0}};
+    // glm::vec3 normal_top = glm::vec3{world_transformation_*glm::vec4{0,1.0f,0,0}};
+
+    glm::vec3 normal_top = glm::normalize(glm::vec3{0,1.0f,0});
 
     bool intersect_top = glm::intersectRayPlane(r.origin_,r.direction_,
                                                 glm::vec3{min_.x,max_.y,min_.z},normal_top,dist);
@@ -131,7 +136,9 @@ HitPoint Box::intersect(Ray r)
             hitpoint_normal = glm::vec3{0,1.0f,0};
         }
     }
-    glm::vec3 normal_bottom = glm::vec3{world_transformation_inv_*glm::vec4{0,-1.0f,0,1.0f}};
+    // glm::vec3 normal_bottom = glm::vec3{world_transformation_*glm::vec4{0,-1.0f,0,1.0f}};
+
+    glm::vec3 normal_bottom = glm::normalize(glm::vec3{0,1.0f,0});
 
     bool intersect_bottom = glm::intersectRayPlane(r.origin_,r.direction_,
                                                   min_,normal_bottom,dist);
@@ -153,7 +160,9 @@ HitPoint Box::intersect(Ray r)
         }
     }
 
-    glm::vec3 normal_left = glm::vec3{world_transformation_inv_*glm::vec4{-1.0f,0,0,0}};
+    // glm::vec3 normal_left = glm::vec3{world_transformation_*glm::vec4{-1.0f,0,0,0}};
+
+    glm::vec3 normal_left = glm::normalize(glm::vec3{-1.0f,0,0});
 
     bool intersect_left = glm::intersectRayPlane(r.origin_,r.direction_,
                                                   min_,normal_left,dist);
@@ -174,10 +183,12 @@ HitPoint Box::intersect(Ray r)
         }
     }
 
-    glm::vec3 normal_right = glm::vec3{world_transformation_inv_*glm::vec4{1.0f,0,0,0}};
+    // glm::vec3 normal_right = glm::vec3{world_transformation_*glm::vec4{1.0f,0,0,0}};
+
+    glm::vec3 normal_right = glm::normalize(glm::vec3{1.0f,0,0});
 
     bool intersect_right = glm::intersectRayPlane(r.origin_,r.direction_,
-                                                  glm::vec3{max_.x,min_.y,min_.z},glm::vec3{1.0f,0.0f,0.0f},dist);
+                                                  glm::vec3{max_.x,min_.y,min_.z},normal_right,dist);
     if (intersect_right && dist < min_dist)
     {
         glm::vec3 tmp_hitpt = {(r.origin_+dist*r.direction_)};
@@ -206,6 +217,6 @@ HitPoint Box::intersect(Ray r)
 glm::vec3 Box::calcNormal(glm::vec3 const& hitpoint) const {
     // glm::vec3 center = {min_.x+((max_.x-min_.x)/2.0f),min_.y+((max_.y-min_.y)/2.0f),min_.z+((min_.z-max_.z)/2.0f)};
     // glm::vec3 hitpoint_normal = hitpoint-center;
-    glm::vec4 hp_normal_transformed = world_transformation_inv_*glm::vec4{hitpoint_normal.x, hitpoint_normal.y, hitpoint_normal.z, 0};
+    glm::vec4 hp_normal_transformed = glm::transpose(world_transformation_inv_)*glm::vec4{hitpoint_normal.x, hitpoint_normal.y, hitpoint_normal.z, 0};
     return glm::vec3{hp_normal_transformed};
 }
